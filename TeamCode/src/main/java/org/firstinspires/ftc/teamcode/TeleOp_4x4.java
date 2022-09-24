@@ -99,10 +99,8 @@ public class TeleOp_4x4 extends LinearOpMode {
             rightPower   = Range.clip(drive - turn, -1.0, 1.0) ;
 
             // ELEVATOR
-            // x - winda dol                      g1               ^
-            // o - winda gora                     g1             []  O
-            // kwadrat - podciaganie dol          g2               X
-            // trojkat - podciaganie gora         g2
+            // group 1 buttons - cross & circle
+            // group 2 buttons - square & triangle
 
             // No button pressed => all 0, all BRAKE
             if(!(gamepad1.cross && gamepad1.circle && gamepad1.square && gamepad1.triangle)) {
@@ -112,21 +110,21 @@ public class TeleOp_4x4 extends LinearOpMode {
                 elevator2Power = 0;
             }
 
-            // No g1 button pressed => set g1 to 0
+            // No group1 button pressed => set motor1 to 0
             if(!(gamepad1.cross && gamepad1.circle)) {
                 elevator1Power = 0;
             }
-            // No g2 button pressed => set g2 to 0
+            // No group2 button pressed => set motor2 to 0
             if(!(gamepad1.square && gamepad1.triangle)) {
                 elevator2Power = 0;
             }
 
-            // Any g1 button pressed => set g2 to 0 and FLOAT
+            // Any group1 button pressed => set motor2 to 0 and FLOAT
             if(gamepad1.cross || gamepad1.circle) {
                 elevator2Power = 0;
                 elevatorMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             }
-            // Any g2 button pressed => set g1 to 0 and FLOAT
+            // Any group2 button pressed => set motor1 to 0 and FLOAT
             if(gamepad1.square || gamepad1.triangle) {
                 elevator1Power = 0;
                 elevatorMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);

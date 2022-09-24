@@ -53,9 +53,9 @@ import com.qualcomm.robotcore.util.Range;
 
 // KOD DO ROBOTA STAREGO (BEZ OBSLUGI WINDY)
 
-@TeleOp(name="TeleOp 2x4 bez windy", group="Linear Opmode")
+@TeleOp(name="TeleOp 2x4 without elevator", group="Linear Opmode")
 // @Disabled
-public class TeleOp_2x4_bez_windy extends LinearOpMode {
+public class TeleOp_2x4_without_elevator extends LinearOpMode {
 
     // Declare OpMode members.
     ElapsedTime runtime = new ElapsedTime();

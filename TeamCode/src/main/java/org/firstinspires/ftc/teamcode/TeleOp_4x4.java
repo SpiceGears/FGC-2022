@@ -41,49 +41,50 @@ import com.qualcomm.robotcore.util.Range;
 public class TeleOp_4x4 extends LinearOpMode {
 
     // Declare OpMode members
+    // Ports in comments are ports for default config
     ElapsedTime runtime = new ElapsedTime();
-    DcMotor leftDriveFront;     // port 0
-    DcMotor leftDriveRear;      // port 1
-    DcMotor rightDriveFront;    // port 2
-    DcMotor rightDriveRear;     // port 3
-
-    DcMotor elevatorMotor1;     // port 0 expansion
-    DcMotor elevatorMotor2;     // port 1 expansion
-
-    Servo unloadServo;
-    Servo elevatorServo;
+    DcMotor leftDriveFront;     // motor port 0 (control hub)
+    DcMotor leftDriveRear;      // motor port 1 (control hub)
+    DcMotor rightDriveFront;    // motor port 2 (control hub)
+    DcMotor rightDriveRear;     // motor port 3 (control hub)
+    DcMotor elevatorMotor1;     // motor port 0 (expansion hub)
+    DcMotor elevatorMotor2;     // motor port 1 (expansion hub)
+    Servo unloadServo;          // servo port 0 (control hub)
+    Servo elevatorServo;        // servo port 1 (control hub)
 
     // Constants
-    public double ELEVATOR_MOTOR1_POWER = 0.2;
-    public double ELEVATOR_MOTOR2_POWER = 0.2;
+    public double ELEVATOR_MOTOR1_POWER = 1;                    // 0 - 1
+    public double ELEVATOR_MOTOR2_POWER = 1;                    // 0 - 1
+    public double DRIVETRAIN_POWER_DEFAULT_MULTIPLIER = 0.5;    // 0 - 1, 1=full speed, no change
+    public double DRIVETRAIN_POWER_BOOST_MULTIPLIER = 1;        // 0 - 1, 1=full speed
 
     @Override
     public void runOpMode() {
 
-        // Setup a variable for each motor to save power level for telemetry and setting motor power
+        // Variable for each motor to save power level for telemetry and setting motor power
         double leftPower;                           // left drive motors power
         double rightPower;                          // right drive motors power
         double elevator1Power = 0;                  // elevator1 motor power
         double elevator2Power = 0;                  // elevator2 motor power
-        double unloadServoPosition = 0;             // unloading carbon servo
-        double elevatorServoPosition = 0;           // locking robot on bar servo
+        double unloadServoPosition = 0;             // unloading carbon servo position (defined on init)
+        double elevatorServoPosition = 0.4;         // elevator servo position (defined on init)
+        boolean isDriveTrainBoosted;                // false = default modifier, true = boost modifier
 
+        // Map devices to objects
         leftDriveFront  = hardwareMap.get(DcMotor.class, "leftDriveFront");
         leftDriveRear  = hardwareMap.get(DcMotor.class, "leftDriveRear");
         rightDriveFront = hardwareMap.get(DcMotor.class, "rightDriveFront");
         rightDriveRear = hardwareMap.get(DcMotor.class, "rightDriveRear");
-
         elevatorMotor1 = hardwareMap.get(DcMotor.class, "elevatorMotor1");
         elevatorMotor2 = hardwareMap.get(DcMotor.class, "elevatorMotor2");
-
         unloadServo = hardwareMap.get(Servo.class, "unloadServo");
         elevatorServo = hardwareMap.get(Servo.class, "elevatorServo");
 
         // Inverting direction of drivetrain motors to go forward for >0 input
-        leftDriveFront.setDirection(DcMotor.Direction.REVERSE);
-        leftDriveRear.setDirection(DcMotor.Direction.REVERSE);
-        rightDriveFront.setDirection(DcMotor.Direction.FORWARD);
-        rightDriveRear.setDirection(DcMotor.Direction.FORWARD);
+        leftDriveFront.setDirection(DcMotor.Direction.FORWARD);
+        leftDriveRear.setDirection(DcMotor.Direction.FORWARD);
+        rightDriveFront.setDirection(DcMotor.Direction.REVERSE);
+        rightDriveRear.setDirection(DcMotor.Direction.REVERSE);
 
         // Changes motor's behavior after setting power to 0.0
         // FLOAT = no resistance
@@ -106,11 +107,11 @@ public class TeleOp_4x4 extends LinearOpMode {
         while (opModeIsActive()) {
 
             // CARBON UNLOAD SERVO
-            if(gamepad1.dpad_down) {
-                unloadServoPosition = 0;
-            }
             if(gamepad1.dpad_up) {
-                unloadServoPosition = 1;
+                unloadServoPosition = 0;        // not final
+            }
+            if(gamepad1.dpad_down) {
+                unloadServoPosition = 0;        // not final
             }
 
             // ELEVATOR SERVO
@@ -118,7 +119,7 @@ public class TeleOp_4x4 extends LinearOpMode {
                 elevatorServoPosition = 0;
             }
             if(gamepad1.dpad_right) {
-                elevatorServoPosition = 1;
+                elevatorServoPosition = 0.4;
             }
 
             // DRIVETRAIN
@@ -126,6 +127,17 @@ public class TeleOp_4x4 extends LinearOpMode {
             double turn  =  gamepad1.right_stick_x;
             leftPower    = Range.clip(drive + turn, -1.0, 1.0) ;
             rightPower   = Range.clip(drive - turn, -1.0, 1.0) ;
+
+            // Clicking left analog button makes the bot go faster
+            if(gamepad1.left_stick_button) {
+                isDriveTrainBoosted = true;
+                leftPower *= DRIVETRAIN_POWER_BOOST_MULTIPLIER;
+                rightPower *= DRIVETRAIN_POWER_BOOST_MULTIPLIER;
+            } else {
+                isDriveTrainBoosted = false;
+                leftPower *= DRIVETRAIN_POWER_DEFAULT_MULTIPLIER;
+                rightPower *= DRIVETRAIN_POWER_DEFAULT_MULTIPLIER;
+            }
 
             // ELEVATOR
             // group 1 buttons - cross & circle
@@ -164,13 +176,13 @@ public class TeleOp_4x4 extends LinearOpMode {
                 elevator1Power = ELEVATOR_MOTOR1_POWER;
             }
             if(gamepad1.circle) {
-                elevator1Power = -1*ELEVATOR_MOTOR1_POWER;
+                elevator1Power = -ELEVATOR_MOTOR1_POWER;
             }
             if(gamepad1.square) {
                 elevator2Power = ELEVATOR_MOTOR2_POWER;
             }
             if(gamepad1.triangle) {
-                elevator2Power = -1*ELEVATOR_MOTOR2_POWER;
+                elevator2Power = -ELEVATOR_MOTOR2_POWER;
             }
 
             // Makes motors have no resistance after clicking right bumper
@@ -187,16 +199,15 @@ public class TeleOp_4x4 extends LinearOpMode {
             leftDriveRear.setPower(leftPower);
             rightDriveFront.setPower(rightPower);
             rightDriveRear.setPower(rightPower);
-
             elevatorMotor1.setPower(elevator1Power);
             elevatorMotor2.setPower(elevator2Power);
-
             unloadServo.setPosition(unloadServoPosition);
             elevatorServo.setPosition(elevatorServoPosition);
 
             // Add data to telemetry (runtime, motors powers)
             telemetry.addData("Status","Run Time: " + runtime.toString());
             telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
+            telemetry.addData("DriveTrain Boost", isDriveTrainBoosted);
             telemetry.addData("Motors", "Elevator Motor 1 (%.2f), Elevator Motor 2 (%.2f)", elevator1Power, elevator2Power);
             telemetry.addData("Servos", "Unload Servo Position: " + unloadServoPosition);
             telemetry.addData("Servos", "Elevator Servo Position: " + elevatorServoPosition);

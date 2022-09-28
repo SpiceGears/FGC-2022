@@ -55,10 +55,12 @@ public class TeleOp_4x4 extends LinearOpMode {
     Servo elevatorServo;        // servo port 1 (control hub)
 
     // Constants
-    public double ELEVATOR_MOTOR1_POWER = 1;                    // 0 - 1
-    public double ELEVATOR_MOTOR2_POWER = 1;                    // 0 - 1
-    public double DRIVETRAIN_POWER_DEFAULT_MULTIPLIER = 0.4;    // 0 - 1, 1=full speed, no change
-    public double DRIVETRAIN_POWER_BOOST_MULTIPLIER = 1;        // 0 - 1, 1=full speed
+    public double ELEVATOR_MOTOR1_POWER_UP = 0.8;                           // 0 - 1
+    public double ELEVATOR_MOTOR1_POWER_DOWN = 0.8;                         // 0 - 1
+    public double ELEVATOR_MOTOR2_POWER_UP = 1;                             // 0 - 1
+    public double ELEVATOR_MOTOR2_POWER_DOWN = 0.35;                        // 0 - 1
+    public double DRIVETRAIN_POWER_DEFAULT_MULTIPLIER = 0.4;                // 0 - 1, 1=full speed, no change
+    public double DRIVETRAIN_POWER_BOOST_MULTIPLIER = 1;                    // 0 - 1, 1=full speed
 
     @Override
     public void runOpMode() {
@@ -113,10 +115,10 @@ public class TeleOp_4x4 extends LinearOpMode {
 
             // CARBON UNLOAD SERVO
             if(gamepad1.dpad_up) {
-                unloadServoPosition = 0;        // not final
+                unloadServoPosition = 0;          // not final
             }
             if(gamepad1.dpad_down) {
-                unloadServoPosition = 1;        // not final
+                unloadServoPosition = 0.8;        // not final
             }
 
             // ELEVATOR SERVO
@@ -181,16 +183,16 @@ public class TeleOp_4x4 extends LinearOpMode {
 
             // Set power if button is pressed
             if(gamepad1.cross) {
-                elevator1Power = ELEVATOR_MOTOR1_POWER;
+                elevator1Power = -ELEVATOR_MOTOR1_POWER_DOWN;
             }
             if(gamepad1.circle) {
-                elevator1Power = -ELEVATOR_MOTOR1_POWER;
+                elevator1Power = ELEVATOR_MOTOR1_POWER_UP;
             }
             if(gamepad1.square) {
-                elevator2Power = ELEVATOR_MOTOR2_POWER;
+                elevator2Power = -ELEVATOR_MOTOR2_POWER_DOWN;
             }
             if(gamepad1.triangle) {
-                elevator2Power = -ELEVATOR_MOTOR2_POWER;
+                elevator2Power = ELEVATOR_MOTOR2_POWER_UP;
             }
 
             // Makes motors have no resistance after clicking right bumper
@@ -215,9 +217,10 @@ public class TeleOp_4x4 extends LinearOpMode {
 
             // Add data to telemetry (runtime, motors powers)
             telemetry.addData("Status","Run Time: " + runtime.toString());
-            telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
             telemetry.addData("DriveTrain Boost", isDriveTrainBoosted);
-            telemetry.addData("Motors", "Elevator Motor 1 (%.2f), Elevator Motor 2 (%.2f)", elevator1Power, elevator2Power);
+            telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
+            telemetry.addData("Motors", "Elevator Motor 1 (%.2f)", elevator1Power, elevatorMotor1.getZeroPowerBehavior());
+            telemetry.addData("Motors", "Elevator Motor 2 (%.2f)", elevator2Power, elevatorMotor2.getZeroPowerBehavior());
             telemetry.addData("Motors", "Intake Motor: " + intakeMotorPower);
             telemetry.addData("Servos", "Unload Servo Position: " + unloadServoPosition);
             telemetry.addData("Servos", "Elevator Servo Position: " + elevatorServoPosition);

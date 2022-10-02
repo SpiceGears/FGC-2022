@@ -55,11 +55,11 @@ public class TeleOp_4x4 extends LinearOpMode {
     Servo elevatorServo;        // servo port 1 (control hub)
 
     // Constants
-    public double ELEVATOR_MOTOR1_POWER_UP = 0.8;                           // 0 - 1
-    public double ELEVATOR_MOTOR1_POWER_DOWN = 0.8;                         // 0 - 1
+    public double ELEVATOR_MOTOR1_POWER_UP = 1;                           // 0 - 1
+    public double ELEVATOR_MOTOR1_POWER_DOWN = 1;                         // 0 - 1
     public double ELEVATOR_MOTOR2_POWER_UP = 1;                             // 0 - 1
-    public double ELEVATOR_MOTOR2_POWER_DOWN = 0.35;                        // 0 - 1
-    public double DRIVETRAIN_POWER_DEFAULT_MULTIPLIER = 0.4;                // 0 - 1, 1=full speed, no change
+    public double ELEVATOR_MOTOR2_POWER_DOWN = 0.25;                        // 0 - 1
+    public double DRIVETRAIN_POWER_DEFAULT_MULTIPLIER = 0.75;                // 0 - 1, 1=full speed, no change
     public double DRIVETRAIN_POWER_BOOST_MULTIPLIER = 1;                    // 0 - 1, 1=full speed
 
     @Override
@@ -72,7 +72,7 @@ public class TeleOp_4x4 extends LinearOpMode {
         double elevator2Power = 0;                  // elevator2 motor power
         double intakeMotorPower = 0;                // intake motor power
         double unloadServoPosition = 0;             // unloading carbon servo position (defined on init)
-        double elevatorServoPosition = 0.4;         // elevator servo position (defined on init)
+        double elevatorServoPosition = 0.05;         // elevator servo position (defined on init)
         boolean isDriveTrainBoosted;                // false = default modifier, true = boost modifier
 
         // Map devices to objects
@@ -100,7 +100,7 @@ public class TeleOp_4x4 extends LinearOpMode {
         elevatorMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Sets servos positions on TeleOp init
-        unloadServo.setPosition(unloadServoPosition);
+        // unloadServo.setPosition(unloadServoPosition);
         elevatorServo.setPosition(elevatorServoPosition);
 
         telemetry.addData("Status", "Initialized!");
@@ -114,23 +114,23 @@ public class TeleOp_4x4 extends LinearOpMode {
         while (opModeIsActive()) {
 
             // CARBON UNLOAD SERVO
-            if(gamepad1.dpad_up) {
+            if(gamepad1.dpad_down) {
                 unloadServoPosition = 0;          // not final
             }
-            if(gamepad1.dpad_down) {
-                unloadServoPosition = 0.8;        // not final
+            if(gamepad1.dpad_up) {
+                unloadServoPosition = 0.45;        // not final
             }
 
             // ELEVATOR SERVO
             if(gamepad1.dpad_left) {
-                elevatorServoPosition = 0;
+                elevatorServoPosition = 0.15;
             }
             if(gamepad1.dpad_right) {
-                elevatorServoPosition = 0.4;
+                elevatorServoPosition = 0.3;
             }
 
             // INTAKE
-            intakeMotorPower = gamepad1.left_trigger;
+            intakeMotorPower = gamepad1.right_trigger;
 
             // DRIVETRAIN
             double drive = -gamepad1.left_stick_y;

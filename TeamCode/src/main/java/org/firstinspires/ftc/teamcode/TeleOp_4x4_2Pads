@@ -59,7 +59,9 @@ public class TeleOp_4x4_2Pads extends LinearOpMode {
     public double ELEVATOR_MOTOR1_POWER_DOWN = 1;                           // 0 - 1
     public double ELEVATOR_MOTOR2_POWER_UP = 1;                             // 0 - 1
     public double ELEVATOR_MOTOR2_POWER_DOWN = 0.25;                        // 0 - 1
-    public double DRIVETRAIN_REAR_POWER_MULTIPLIER = 0.3846;                // equaling rear drivetrain speed after 2.6:1 gear reduction
+    public double DRIVETRAIN_REAR_POWER_MULTIPLIER = 0.3846;                // 0.3836   for 1:2.6
+                                                                            // 0.75     for 15:20
+                                                                            // 0.6666   for 10:15
 
     @Override
     public void runOpMode() {

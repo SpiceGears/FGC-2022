@@ -50,6 +50,7 @@ public class TeleOp_4x4_2Pads extends LinearOpMode {
     DcMotor rightDriveRear;     // motor port 3 (control hub)
     DcMotor elevatorMotor1;     // motor port 0 (expansion hub)
     DcMotor elevatorMotor2;     // motor port 1 (expansion hub)
+    DcMotor elevatorMotor3;     // motor port 3 (expansion hub)
     DcMotor intakeMotor;        // motor port 2 (expansion hub)
     Servo unloadServo;          // servo port 0 (control hub)
     Servo elevatorServo;        // servo port 1 (control hub)
@@ -57,11 +58,12 @@ public class TeleOp_4x4_2Pads extends LinearOpMode {
     // Constants
     public double ELEVATOR_MOTOR1_POWER_UP = 1;                             // 0 - 1
     public double ELEVATOR_MOTOR1_POWER_DOWN = 1;                           // 0 - 1
-    public double ELEVATOR_MOTOR2_POWER_UP = 1;                             // 0 - 1
-    public double ELEVATOR_MOTOR2_POWER_DOWN = 0.25;                        // 0 - 1
-    public double DRIVETRAIN_REAR_POWER_MULTIPLIER = 0.3846;                // 0.3836   for 1:2.6
+    public double ELEVATOR_MOTOR2_POWER_UP = 0.9;                             // 0 - 1
+    public double ELEVATOR_MOTOR2_POWER_DOWN = 0.9;                           // 0 - 1
+    public double DRIVETRAIN_REAR_POWER_MULTIPLIER = 1;                     // 0.3836   for 1:2.6 planetary:wheel
                                                                             // 0.75     for 15:20
                                                                             // 0.6666   for 10:15
+                                                                            // 1        for equal front and rear
 
     @Override
     public void runOpMode() {
@@ -73,6 +75,7 @@ public class TeleOp_4x4_2Pads extends LinearOpMode {
         double rightRearPower;                      // right rear motor power
         double elevator1Power = 0;                  // elevator1 motor power
         double elevator2Power = 0;                  // elevator2 motor power
+        double elevator3Power = 0;                  // elevator3 motor power
         double intakeMotorPower = 0;                // intake motor power
         double unloadServoPosition = 0;             // unloading carbon servo position (defined on init)
         double elevatorServoPosition = 0.05;        // elevator servo position (defined on init)
@@ -84,6 +87,7 @@ public class TeleOp_4x4_2Pads extends LinearOpMode {
         rightDriveRear = hardwareMap.get(DcMotor.class, "rightDriveRear");
         elevatorMotor1 = hardwareMap.get(DcMotor.class, "elevatorMotor1");
         elevatorMotor2 = hardwareMap.get(DcMotor.class, "elevatorMotor2");
+        elevatorMotor3 = hardwareMap.get(DcMotor.class, "elevatorMotor3");
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
         unloadServo = hardwareMap.get(Servo.class, "unloadServo");
         elevatorServo = hardwareMap.get(Servo.class, "elevatorServo");
@@ -103,7 +107,7 @@ public class TeleOp_4x4_2Pads extends LinearOpMode {
 
         // Sets servos positions on TeleOp init
         // unloadServo.setPosition(unloadServoPosition);
-        elevatorServo.setPosition(elevatorServoPosition);
+        // elevatorServo.setPosition(elevatorServoPosition);
 
         telemetry.addData("Status", "Initialized!");
         telemetry.update();
@@ -125,7 +129,7 @@ public class TeleOp_4x4_2Pads extends LinearOpMode {
 
             // ELEVATOR SERVO
             if(gamepad2.dpad_left) {
-                elevatorServoPosition = 0.15;
+                elevatorServoPosition = 0.1;
             }
             if(gamepad2.dpad_right) {
                 elevatorServoPosition = 0.3;
@@ -133,7 +137,7 @@ public class TeleOp_4x4_2Pads extends LinearOpMode {
 
             // INTAKE
             intakeMotorPower = gamepad1.right_trigger;
-            intakeMotorPower = -gamepad1.left_trigger;
+           // intakeMotorPower = -1 * gamepad1.left_trigger;
 
             // DRIVETRAIN
             double drive = -gamepad1.left_stick_y;
@@ -153,11 +157,13 @@ public class TeleOp_4x4_2Pads extends LinearOpMode {
                 elevatorMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 elevator1Power = 0;
                 elevator2Power = 0;
+                elevator3Power = 0;
             }
 
             // No group1 button pressed => set motor1 to 0
             if(!(gamepad2.cross && gamepad2.circle)) {
                 elevator1Power = 0;
+                elevator3Power = 0;
             }
             // No group2 button pressed => set motor2 to 0
             if(!(gamepad2.square && gamepad2.triangle)) {
@@ -172,15 +178,20 @@ public class TeleOp_4x4_2Pads extends LinearOpMode {
             // Any group2 button pressed => set motor1 to 0 and FLOAT
             if(gamepad2.square || gamepad2.triangle) {
                 elevator1Power = 0;
+                elevator3Power = 0;
                 elevatorMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                elevatorMotor3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                
             }
 
             // Set power if button is pressed
             if(gamepad2.cross) {
                 elevator1Power = -ELEVATOR_MOTOR1_POWER_DOWN;
+                elevator3Power = ELEVATOR_MOTOR1_POWER_DOWN;
             }
             if(gamepad2.circle) {
                 elevator1Power = ELEVATOR_MOTOR1_POWER_UP;
+                elevator3Power = -ELEVATOR_MOTOR1_POWER_UP;
             }
             if(gamepad2.square) {
                 elevator2Power = -ELEVATOR_MOTOR2_POWER_DOWN;
@@ -205,6 +216,7 @@ public class TeleOp_4x4_2Pads extends LinearOpMode {
             rightDriveRear.setPower(rightRearPower * DRIVETRAIN_REAR_POWER_MULTIPLIER);
             elevatorMotor1.setPower(elevator1Power);
             elevatorMotor2.setPower(elevator2Power);
+            elevatorMotor3.setPower(elevator3Power);
             intakeMotor.setPower(intakeMotorPower);
             unloadServo.setPosition(unloadServoPosition);
             elevatorServo.setPosition(elevatorServoPosition);
@@ -214,6 +226,7 @@ public class TeleOp_4x4_2Pads extends LinearOpMode {
             telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftFrontPower, rightFrontPower);
             telemetry.addData("Motors", "Elevator Motor 1 (%.2f)", elevator1Power, elevatorMotor1.getZeroPowerBehavior());
             telemetry.addData("Motors", "Elevator Motor 2 (%.2f)", elevator2Power, elevatorMotor2.getZeroPowerBehavior());
+            telemetry.addData("Motors", "Elavator Motor 3 (%.2f)", elevator3Power, elevatorMotor3.getZeroPowerBehavior());
             telemetry.addData("Motors", "Intake Motor: " + intakeMotorPower);
             telemetry.addData("Servos", "Unload Servo Position: " + unloadServoPosition);
             telemetry.addData("Servos", "Elevator Servo Position: " + elevatorServoPosition);

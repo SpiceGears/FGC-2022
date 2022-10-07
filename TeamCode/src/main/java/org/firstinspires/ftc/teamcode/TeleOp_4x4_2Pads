@@ -58,8 +58,8 @@ public class TeleOp_4x4_2Pads extends LinearOpMode {
     // Constants
     public double ELEVATOR_MOTOR1_POWER_UP = 1;                             // 0 - 1
     public double ELEVATOR_MOTOR1_POWER_DOWN = 1;                           // 0 - 1
-    public double ELEVATOR_MOTOR2_POWER_UP = 0.9;                             // 0 - 1
-    public double ELEVATOR_MOTOR2_POWER_DOWN = 0.9;                           // 0 - 1
+    public double ELEVATOR_MOTOR2_POWER_UP = 1;                             // 0 - 1
+    public double ELEVATOR_MOTOR2_POWER_DOWN = 0.55;                           // 0 - 1
     public double DRIVETRAIN_REAR_POWER_MULTIPLIER = 1;                     // 0.3836   for 1:2.6 planetary:wheel
                                                                             // 0.75     for 15:20
                                                                             // 0.6666   for 10:15
@@ -79,6 +79,8 @@ public class TeleOp_4x4_2Pads extends LinearOpMode {
         double intakeMotorPower = 0;                // intake motor power
         double unloadServoPosition = 0;             // unloading carbon servo position (defined on init)
         double elevatorServoPosition = 0.05;        // elevator servo position (defined on init)
+        boolean isRightTriggerPressed;
+        boolean isLeftTriggerPressed;
 
         // Map devices to objects
         leftDriveFront  = hardwareMap.get(DcMotor.class, "leftDriveFront");
@@ -136,8 +138,26 @@ public class TeleOp_4x4_2Pads extends LinearOpMode {
             }
 
             // INTAKE
-            intakeMotorPower = gamepad1.right_trigger;
-           // intakeMotorPower = -1 * gamepad1.left_trigger;
+            if(gamepad1.right_trigger == 0) {
+                isRightTriggerPressed = false;
+            } else {
+                isRightTriggerPressed = true;
+            }
+            if(gamepad1.left_trigger == 0) {
+                isLeftTriggerPressed = false;
+            } else {
+                isLeftTriggerPressed = true;
+            }
+            
+            if(isRightTriggerPressed) {
+                intakeMotorPower = gamepad1.right_trigger;
+            }
+            if(isLeftTriggerPressed) {
+                intakeMotorPower = -1 * gamepad1.left_trigger;
+            }
+            if(isRightTriggerPressed == false && isLeftTriggerPressed == false) {
+                intakeMotorPower = 0;
+            }
 
             // DRIVETRAIN
             double drive = -gamepad1.left_stick_y;
@@ -155,6 +175,8 @@ public class TeleOp_4x4_2Pads extends LinearOpMode {
             if(!(gamepad2.cross && gamepad2.circle && gamepad2.square && gamepad2.triangle)) {
                 elevatorMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 elevatorMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                elevatorMotor3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                
                 elevator1Power = 0;
                 elevator2Power = 0;
                 elevator3Power = 0;

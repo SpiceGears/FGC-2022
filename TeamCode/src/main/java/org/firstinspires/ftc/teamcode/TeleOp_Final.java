@@ -223,13 +223,13 @@ public class TeleOp_Final extends LinearOpMode {
 
 
             // Add data to telemetry (runtime, motors' powers)
-            telemetry.addData("Status","Run Time: (%.2f)", runtime.toString());
-            telemetry.addData("Motors", "Left  Drive Power (%.2f)", leftFrontPower);
-            telemetry.addData("Motors", "Right Drive Power (%.2f)", rightFrontPower);
-            telemetry.addData("Motors", "Elevator Pulldown Motor Power (%.2f)", elevatorPulldownMotorPower);
-            telemetry.addData("Motors", "Elevator Slide Motor Power (%.2f)", elevatorSlideMotorPower);
-            telemetry.addData("Motors", "Intake Motor Power (%.2f)", intakeMotorPower);
-            telemetry.addData("Servos", "Unload Servo Position", unloadServoPosition);
+            telemetry.addData("Status","Run Time: " + runtime.toString());
+            telemetry.addData("Motors", "Left  Drive Power %.2f", leftFrontPower);
+            telemetry.addData("Motors", "Right Drive Power %.2f", rightFrontPower);
+            telemetry.addData("Motors", "Elevator Pulldown Motor Power: %.2f", elevatorPulldownMotorPower);
+            telemetry.addData("Motors", "Elevator Slide Motor Power: %.2f", elevatorSlideMotorPower);
+            telemetry.addData("Motors", "Intake Motor Power: " + intakeMotorPower);
+            telemetry.addData("Servos", "Unload Servo Position: " + unloadServoPosition);
             telemetry.update();
         }
     }
